@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#000000">
+    <title>Y2K Portfolio</title>
+    
+    <!-- Critical styles for mobile - load before anything else -->
+    <style>
+        /* Force dark theme immediately */
+        :root {
+            color-scheme: dark;
+            background: #000000;
+        }
+        
+        html, body {
+            background: #000000 !important;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Make chat button always accessible but hidden initially */
+        .taskbar-chat-toggle {
+            position: fixed !important;
+            left: 20px !important; /* Moved to left side */
+            bottom: 120px !important;
+            z-index: 999999 !important;
+            background: rgba(128, 0, 255, 0.3) !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
+            border: 2px solid rgba(255, 255, 255, 0.2) !important;
+            box-shadow: 0 0 20px rgba(128, 0, 255, 0.5) !important;
+            padding: 15px !important;
+            border-radius: 50% !important;
+            width: 60px !important;
+            height: 60px !important;
+            display: none !important; /* Hidden by default */
+            align-items: center !important;
+            justify-content: center !important;
+            cursor: pointer !important;
+            transition: all 0.3s ease !important;
+            opacity: 0 !important;
+        }
+
+        /* Show chat button after loading */
+        .loading-complete .taskbar-chat-toggle {
+            display: flex !important;
+            opacity: 1 !important;
+        }
+
+        /* Base chat window styles */
+        .chat-window {
+            display: none;
+            position: fixed;
+            z-index: 999999;
+            background: rgba(0, 0, 0, 0.95);
+            flex-direction: column;
+        }
+
+        /* Mobile styles */
+        @media (max-width: 768px) {
+            .chat-window {
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                width: 100%;
+                height: 100%;
+                transform: translateY(100%);
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .chat-window.visible {
+                display: flex;
+                transform: translateY(0);
+            }
+
+            .chat-window.closing {
+                transform: translateY(100%);
+            }
+
+            /* Enhanced swipe area - mobile only */
+            .swipe-area {
+                position: relative;
+                height: 60px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding-top: env(safe-area-inset-top);
+                background: linear-gradient(to bottom, rgba(255, 255, 255, 0.05), transparent);
+            }
+
+            .swipe-indicator {
+                width: 40px;
+                height: 5px;
+                background: rgba(255, 255, 255, 0.3);
+                border-radius: 6px;
+                margin-bottom: 8px;
+            }
+
+            .swipe-hint {
+                color: rgba(255, 255, 255, 0.5);
+                font-size: 12px;
+                font-weight: 500;
+                letter-spacing: 0.5px;
+                text-transform: uppercase;
+            }
+
+            /* Enhanced chat header */
+            .chat-header {
+                padding: 16px 20px;
+                background: rgba(0, 0, 0, 0.7);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                min-height: 60px;
+            }
+
+            .chat-title {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 16px;
+                font-weight: 500;
+            }
+
+            /* Enhanced close button */
+            .close-bubble {
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.1);
+                border: none;
+                color: white;
+                font-size: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                margin-right: 0;
+                backdrop-filter: blur(5px);
+                -webkit-backdrop-filter: blur(5px);
+                z-index: 1000000;
+            }
+
+            .close-bubble:hover {
+                background: rgba(255, 255, 255, 0.2);
+                transform: scale(1.1);
+            }
+        }
+
+        /* Desktop styles */
+        @media (min-width: 769px) {
+            .chat-window {
+                bottom: 60px;
+                right: 20px;
+                width: 350px;
+                height: 500px;
+                max-height: calc(100vh - 80px);
+                border-radius: 16px;
+                transform: scale(0.95);
+                opacity: 0;
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                z-index: 100; /* Lower z-index on desktop */
+            }
+
+            .chat-window.visible {
+                display: flex;
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            .chat-window.closing {
+                transform: scale(0.95);
+                opacity: 0;
+            }
+
+            /* Hide swipe area on desktop */
+            .swipe-area {
+                display: none !important;
+            }
+        }
+
+        /* Hide taskbar label on mobile */
+        .taskbar-chat-toggle .taskbar-label {
+            display: none !important;
+        }
+
+        /* Ensure button stays visible on iOS */
+        @supports (-webkit-touch-callout: none) {
+            .taskbar-chat-toggle {
+                /* Add padding for iOS safe area */
+                bottom: calc(120px + env(safe-area-inset-bottom)) !important;
+                /* Make even more visible on iOS */
+                background: rgba(128, 0, 255, 0.4) !important;
+            }
+        }
+
+        /* Ensure content doesn't cause white background */
+        #app, .content-wrapper, .section {
+            background: #000000 !important;
+        }
+
+        /* Hide scrollbars but keep functionality */
+        * {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        *::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Bubble close button styles */
+        .close-bubble {
+            width: 36px !important;
+            height: 36px !important;
+            border-radius: 50% !important;
+            background: rgba(255, 255, 255, 0.1) !important;
+            border: none !important;
+            color: white !important;
+            font-size: 24px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            cursor: pointer !important;
+            transition: all 0.3s ease !important;
+            margin-right: 10px !important;
+            backdrop-filter: blur(5px) !important;
+            -webkit-backdrop-filter: blur(5px) !important;
+        }
+
+        .close-bubble:hover {
+            background: rgba(255, 255, 255, 0.2) !important;
+            transform: scale(1.1) !important;
+        }
+
+        /* Ensure navigation stays above chat on desktop */
+        .orb-navigation {
+            z-index: 200 !important;
+            position: relative !important;
+        }
+    </style>
+
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen">
+        <div class="window loading-window">
+            <div class="window-header">
+                <div class="window-title">SYSTEM STARTUP</div>
+                <div class="window-controls">
+                    <button class="window-button minimize"></button>
+                    <button class="window-button maximize"></button>
+                    <button class="window-button close"></button>
+                </div>
+            </div>
+            <div class="window-content">
+                <div class="loading-text">INITIALIZING SYSTEM</div>
+                <div class="loading-progress-container">
+                    <div class="loading-progress"></div>
+                </div>
+                <div class="loading-status">Establishing Connection...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Three.js Container -->
+    <div id="three-container"></div>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Navigation Orbs -->
+        <nav class="orb-navigation">
+            <div class="nav-orb home active">
+                <div class="orb-content">HOME</div>
+                <div class="orb-glow"></div>
+            </div>
+            <div class="nav-orb about">
+                <div class="orb-content">ABOUT</div>
+                <div class="orb-glow"></div>
+            </div>
+            <div class="nav-orb projects">
+                <div class="orb-content">PROJECTS</div>
+                <div class="orb-glow"></div>
+            </div>
+            <div class="nav-orb contact">
+                <div class="orb-content">CONTACT</div>
+                <div class="orb-glow"></div>
+            </div>
+        </nav>
+
+        <!-- Home Section -->
+        <section class="section home-section active">
+            <div class="window main-window">
+                <div class="window-header">
+                    <div class="window-title">HOME.exe</div>
+                    <div class="window-controls">
+                        <button class="window-button minimize"></button>
+                        <button class="window-button maximize"></button>
+                        <button class="window-button close"></button>
+                    </div>
+                </div>
+                <div class="window-content">
+                    <h1 class="glitch-text">WELCOME TO THE SYSTEM</h1>
+                    
+                    <button class="system-button">ENTER_SYSTEM</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section class="section about-section">
+            <div class="window about-window">
+                <div class="window-header">
+                    <div class="window-title">ABOUT.exe</div>
+                    <div class="window-controls">
+                        <button class="window-button minimize"></button>
+                        <button class="window-button maximize"></button>
+                        <button class="window-button close"></button>
+                    </div>
+                </div>
+                <div class="window-content">
+                    <div class="terminal-container" data-text="Loading personal data...">
+                        <!-- Terminal content will be populated by JS -->
+                    </div>
+                    <div class="matrix-bg"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Section -->
+        <section class="section projects-section">
+            <div class="window projects-window">
+                <div class="window-header">
+                    <div class="window-title">PROJECTS.exe</div>
+                    <div class="window-controls">
+                        <button class="window-button minimize"></button>
+                        <button class="window-button maximize"></button>
+                        <button class="window-button close"></button>
+                    </div>
+                </div>
+                <div class="window-content">
+                    <div class="projects-grid">
+                        <!-- Project Card Template -->
+                        <div class="project-card window">
+                            <div class="window-header">
+                                <div class="window-title">PROJECT_01.exe</div>
+                                <div class="window-controls">
+                                    <button class="window-button minimize"></button>
+                                    <button class="window-button maximize"></button>
+                                    <button class="window-button close"></button>
+                                </div>
+                            </div>
+                            <div class="window-content">
+                                <h3 class="project-title">Project Title</h3>
+                                <div class="project-tags">
+                                    <span class="tag">JavaScript</span>
+                                    <span class="tag">Three.js</span>
+                                    <span class="tag">WebGL</span>
+                                </div>
+                                <p class="project-description">
+                                    Project description goes here. This is a brief overview of what the project does and what technologies were used.
+                                </p>
+                                <div class="project-links">
+                                    <button class="system-button">VIEW_PROJECT</button>
+                                    <button class="system-button">SOURCE_CODE</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Additional project cards will be dynamically added -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section class="section contact-section">
+            <div class="window contact-window">
+                <div class="window-header">
+                    <div class="window-title">CONTACT.exe</div>
+                    <div class="window-controls">
+                        <button class="window-button minimize"></button>
+                        <button class="window-button maximize"></button>
+                        <button class="window-button close"></button>
+                    </div>
+                </div>
+                <div class="window-content">
+                    <form class="contact-form">
+                        <div class="form-group">
+                            <label for="name">USER_NAME:</label>
+                            <input type="text" id="name" class="system-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">USER_EMAIL:</label>
+                            <input type="email" id="email" class="system-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">MESSAGE:</label>
+                            <textarea id="message" class="system-input" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="system-button">TRANSMIT_MESSAGE</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Background Effects -->
+    <div class="crt-overlay"></div>
+    <div class="scanline"></div>
+    <div class="noise"></div>
+
+    <!-- Chat Window -->
+    <div class="chat-window" id="draggableChat">
+        <div class="swipe-area">
+            <div class="swipe-indicator"></div>
+            <div class="swipe-hint">Swipe down to close</div>
+        </div>
+        <div class="chat-header">
+            <div class="chat-title">
+                <span class="status-icon"></span>
+                Retro Chat Room
+            </div>
+            <div class="chat-controls">
+                <button class="close-bubble" title="Close">×</button>
+            </div>
+        </div>
+        
+        <div class="chat-messages">
+            <!-- Messages will be dynamically added here -->
+        </div>
+        
+        <div class="chat-status"></div>
+        
+        <div class="chat-input">
+            <select class="emoji-picker">
+                <option value="👾">👾</option>
+                <option value="🚀">🚀</option>
+                <option value="💫">💫</option>
+                <option value="🌌">🌌</option>
+                <option value="🎮">🎮</option>
+                <option value="✨">✨</option>
+                <option value="🌟">🌟</option>
+                <option value="💭">💭</option>
+                <option value="🤖">🤖</option>
+                <option value="👽">👽</option>
+            </select>
+            <input type="text" class="message-input" maxlength="25" placeholder="Type... (25 chars max)">
+            <button class="send-button">Send</button>
+        </div>
+    </div>
+
+    <!-- Taskbar -->
+    <div class="taskbar">
+        <button class="taskbar-chat-toggle" title="Open Chat">
+            <span class="taskbar-icon">💬</span>
+            <span class="taskbar-label">Chat</span>
+        </button>
+    </div>
+
+    <script src="assets/js/main.js" type="module"></script>
+</body>
+</html> 

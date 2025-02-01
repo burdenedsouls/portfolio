@@ -1,0 +1,33 @@
+/* System Font Loading */
+@import url('https://fonts.googleapis.com/css2?family=Michroma&family=Orbitron:wght@400;700&display=swap');
+
+:root {
+    --font-main: 'Orbitron', 'Michroma', sans-serif;
+    --font-secondary: 'Michroma', 'Arial Black', sans-serif;
+}
+
+/* Font Classes */
+.fonts-loaded {
+    font-family: var(--font-main);
+}
+
+.fonts-not-loaded {
+    font-family: 'Arial Black', sans-serif;
+}
+
+/* Typography Utilities */
+.text-mono {
+    font-family: 'Share Tech Mono', monospace;
+}
+
+.text-display {
+    font-family: var(--font-main);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.text-body {
+    font-family: var(--font-secondary);
+    font-weight: 400;
+} 
