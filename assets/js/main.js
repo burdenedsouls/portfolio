@@ -876,75 +876,97 @@ class RetroChat {
         this.initializeChat()
             .then(() => {
                 console.log('Chat initialized successfully');
-                this.initializeWebSocket();
+                this.connectWebSocket();
             })
             .catch(error => console.error('Chat initialization failed:', error));
     }
 
-    initializeWebSocket() {
-        this.connectWebSocket();
-
-        // Reconnection handling
-        window.addEventListener('online', () => {
-            console.log('Network online, reconnecting...');
-            this.connectWebSocket();
-        });
-
-        window.addEventListener('focus', () => {
-            if (!this.state.connected) {
-                console.log('Window focused, reconnecting...');
-                this.connectWebSocket();
-            }
-        });
+    async connectWebSocket() {
+        try {
+            // Determine if we're on GitHub Pages or local development
+            const isProduction = window.location.hostname.includes('github.io');
+            
+            // Use secure WebSocket in production, fallback to local in development
+            const protocol = isProduction ? 'wss://' : 'ws://';
+            const host = isProduction ? 'wss://your-websocket-service.com' : 'localhost:3000';
+            
+            this.ws = new WebSocket(`${protocol}${host}`);
+            
+            this.ws.onopen = () => {
+                console.log('WebSocket connection established');
+                this.updateStatus('Connected');
+                this.isConnected = true;
+            };
+            
+            this.ws.onclose = () => {
+                console.log('WebSocket connection closed');
+                this.updateStatus('Disconnected');
+                this.isConnected = false;
+                
+                // Attempt to reconnect in development only
+                if (!isProduction) {
+                    setTimeout(() => this.connectWebSocket(), 3000);
+                }
+            };
+            
+            this.ws.onerror = (error) => {
+                console.log('WebSocket error:', error);
+                this.updateStatus('Error connecting');
+                this.isConnected = false;
+                
+                if (isProduction) {
+                    // In production, fallback to static mode
+                    this.initializeStaticMode();
+                }
+            };
+            
+            this.ws.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'chat') {
+                        this.renderMessage(data);
+                    }
+                } catch (error) {
+                    console.error('Error processing message:', error);
+                }
+            };
+        } catch (error) {
+            console.error('Chat initialization failed:', error);
+            // Fallback to static mode
+            this.initializeStaticMode();
+        }
     }
 
-    connectWebSocket() {
-        if (this.ws) {
-            this.ws.close();
-        }
-
-        this.ws = new WebSocket(this.config.wsUrl);
-
-        this.ws.onopen = () => {
-            console.log('WebSocket connected');
-            this.state.connected = true;
-            this.updateStatus('connected');
+    initializeStaticMode() {
+        // Initialize chat in static mode (no real-time functionality)
+        console.log('Initializing chat in static mode');
+        this.updateStatus('Static Mode');
+        
+        // Add some default messages
+        this.addDefaultMessages();
+        
+        // Override send functionality for static mode
+        this.sendMessage = async (text, emoji) => {
+            const message = {
+                id: Date.now(),
+                text,
+                emoji,
+                timestamp: new Date().toISOString(),
+                isStatic: true
+            };
+            this.renderMessage(message);
+            return true;
         };
+    }
 
-        this.ws.onclose = () => {
-            console.log('WebSocket disconnected');
-            this.state.connected = false;
-            this.updateStatus('disconnected');
-            // Attempt to reconnect after 5 seconds
-            setTimeout(() => this.connectWebSocket(), 5000);
-        };
-
-        this.ws.onerror = (error) => {
-            console.error('WebSocket error:', error);
-            this.updateStatus('error');
-        };
-
-        this.ws.onmessage = (event) => {
-            try {
-                const data = JSON.parse(event.data);
-                
-                if (data.type === 'init') {
-                    // Initial messages
-                    this.state.messages = data.messages;
-                    this.elements.messages.innerHTML = '';
-                    this.state.messages.forEach(msg => this.renderMessage(msg));
-                } else if (data.type === 'update') {
-                    // New message
-                    if (!this.state.messages.some(m => m.id === data.message.id)) {
-                        this.state.messages.push(data.message);
-                        this.renderMessage(data.message);
-                        this.cleanupMessages();
-                    }
-                }
-            } catch (error) {
-                console.error('Error processing WebSocket message:', error);
-            }
-        };
+    addDefaultMessages() {
+        const defaultMessages = [
+            { text: "Welcome to the Y2K Chat Experience!", emoji: "👾", timestamp: new Date().toISOString() },
+            { text: "This is running in static mode", emoji: "💫", timestamp: new Date().toISOString() },
+            { text: "Try sending a message!", emoji: "🚀", timestamp: new Date().toISOString() }
+        ];
+        
+        defaultMessages.forEach(msg => this.renderMessage(msg));
     }
 
     updateStatus(status) {
@@ -1034,11 +1056,6 @@ class RetroChat {
             console.error('Error during chat initialization:', error);
             throw error;
         }
-    }
-
-    addDefaultMessages() {
-        this.sendMessage('Welcome to RetroChat! 👾', '👾');
-        this.sendMessage('Leave a short message (25 chars max) with an emoji! 🌟', '💫');
     }
 
     setupEventListeners() {
@@ -1327,15 +1344,6 @@ class RetroChat {
             }
         } catch (error) {
             console.error('Error loading messages:', error);
-        }
-    }
-
-    cleanupMessages() {
-        while (this.state.messages.length > this.config.maxMessages) {
-            this.state.messages.shift();
-            if (this.elements.messages.firstChild) {
-                this.elements.messages.removeChild(this.elements.messages.firstChild);
-            }
         }
     }
 
