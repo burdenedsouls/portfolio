@@ -836,6 +836,16 @@
         </button>
     </div>
 
-    <script src="./assets/js/main.js" type="module"></script>
+    <!-- Firebase Scripts -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getDatabase } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+        import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js';
+    </script>
+    
+    <!-- Application Scripts -->
+    <script type="module" src="assets/js/firebase-config.js"></script>
+    <script type="module" src="assets/js/chat.js"></script>
+    <script type="module" src="assets/js/main.js"></script>
 </body>
 </html> 
