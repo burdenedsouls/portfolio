@@ -326,5 +326,97 @@ export class RetroChat {
         return allValid;
     }
 
-    // ... rest of your existing methods (toggleWindow, minimizeWindow, etc.)
+    setupEventListeners() {
+        // Message sending
+        const sendMessage = () => {
+            const text = this.elements.input.value.trim();
+            const emoji = this.elements.emojiPicker.value || this.config.defaultEmoji;
+            
+            if (text) {
+                this.sendMessage(text, emoji);
+                this.elements.input.value = '';
+                if (this.state.isMobile) {
+                    this.elements.input.blur();
+                }
+            }
+        };
+
+        // Input events
+        this.elements.input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Send button
+        this.elements.sendButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            sendMessage();
+        });
+
+        // Window toggle
+        this.elements.taskbarButton.addEventListener('click', () => {
+            this.toggleWindow();
+        });
+
+        // Mobile swipe handling
+        if (this.state.isMobile) {
+            let touchStartY = 0;
+            let currentTranslateY = 0;
+            let isSwiping = false;
+
+            this.elements.window.addEventListener('touchstart', (e) => {
+                const touch = e.touches[0];
+                touchStartY = touch.clientY;
+                currentTranslateY = 0;
+                
+                // Allow swiping in header area or swipe area
+                const touchTarget = e.target;
+                if (touchTarget.closest('.chat-header') || touchTarget.closest('.swipe-area')) {
+                    isSwiping = true;
+                    this.elements.window.style.transition = 'none';
+                }
+            }, { passive: true });
+
+            this.elements.window.addEventListener('touchmove', (e) => {
+                if (!isSwiping) return;
+                
+                const touch = e.touches[0];
+                const deltaY = Math.max(0, touch.clientY - touchStartY);
+                currentTranslateY = deltaY;
+                
+                requestAnimationFrame(() => {
+                    this.elements.window.style.transform = `translateY(${deltaY}px)`;
+                });
+                
+                e.preventDefault();
+            }, { passive: false });
+
+            this.elements.window.addEventListener('touchend', () => {
+                if (!isSwiping) return;
+                
+                isSwiping = false;
+                this.elements.window.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+                
+                if (currentTranslateY > 100) {
+                    this.minimizeWindow();
+                } else {
+                    requestAnimationFrame(() => {
+                        this.elements.window.style.transform = '';
+                    });
+                }
+                
+                currentTranslateY = 0;
+            });
+        }
+
+        // Close button
+        const closeButton = this.elements.window.querySelector('.close-bubble');
+        if (closeButton) {
+            closeButton.addEventListener('click', () => {
+                this.minimizeWindow();
+            });
+        }
+    }
 } 
