@@ -301,5 +301,30 @@ export class RetroChat {
         this.elements.window.addEventListener('transitionend', handleTransitionEnd, { once: true });
     }
 
+    validateElements() {
+        const requiredElements = {
+            window: '.chat-window',
+            messages: '.chat-messages',
+            input: '.message-input',
+            emojiPicker: '.emoji-picker',
+            sendButton: '.send-button',
+            taskbarButton: '.taskbar-chat-toggle',
+            inputArea: '.chat-input',
+            status: '.chat-status'
+        };
+
+        let allValid = true;
+        for (const [key, selector] of Object.entries(requiredElements)) {
+            const element = document.querySelector(selector);
+            if (!element) {
+                console.error(`Missing required chat element: ${selector}`);
+                allValid = false;
+            }
+            this.elements[key] = element;
+        }
+
+        return allValid;
+    }
+
     // ... rest of your existing methods (toggleWindow, minimizeWindow, etc.)
 } 

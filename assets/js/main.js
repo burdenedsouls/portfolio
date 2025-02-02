@@ -735,10 +735,29 @@ class Y2KPortfolio {
     }
 }
 
-// Initialize when DOM is loaded
+// Initialize systems
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM loaded, creating Y2K Portfolio instance');
-    window.y2kPortfolio = new Y2KPortfolio();
+    
+    // Initialize loading system first
+    const loadingSystem = new LoadingSystem();
+    
+    // Initialize navigation after loading
+    const navigation = new Navigation();
+    
+    // Initialize RetroChat after a short delay to ensure all elements are loaded
+    setTimeout(() => {
+        console.log('Initializing RetroChat...');
+        window.retroChat = new RetroChat();
+    }, 500);
+    
+    // Handle system entry button
+    const systemButton = document.querySelector('.system-button');
+    if (systemButton) {
+        systemButton.addEventListener('click', () => {
+            console.log('Entering system...');
+        });
+    }
 });
 
 // Navigation System
@@ -811,26 +830,4 @@ class LoadingSystem {
             }, 500);
         }
     }
-}
-
-// Initialize systems
-document.addEventListener('DOMContentLoaded', () => {
-    const loadingSystem = new LoadingSystem();
-    const navigation = new Navigation();
-    // RetroChat is already initialized globally
-    
-    // Handle system entry button
-    const systemButton = document.querySelector('.system-button');
-    if (systemButton) {
-        systemButton.addEventListener('click', () => {
-            // Add your system entry logic here
-            console.log('Entering system...');
-        });
-    }
-});
-
-// Initialize chat when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM loaded, creating RetroChat instance');
-    window.retroChat = new RetroChat();
-}); 
+} 
