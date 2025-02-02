@@ -189,7 +189,7 @@ export class RetroChat {
             id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
             text: filteredText.slice(0, this.config.maxLength),
             emoji: emoji || this.config.defaultEmoji,
-            timestamp: serverTimestamp(),
+            timestamp: Date.now(), // Use numeric timestamp instead of serverTimestamp
             filtered: filteredText !== text
         };
 
@@ -201,7 +201,8 @@ export class RetroChat {
             }
         } catch (error) {
             console.error('Error sending message:', error);
-            this.updateStatus('Error sending message');
+            this.updateStatus('Error sending message: ' + error.message);
+            throw error; // Re-throw to allow handling by caller
         }
     }
 

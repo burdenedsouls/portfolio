@@ -15,11 +15,12 @@
           ".validate": "newData.isString() && newData.val().length <= 4"
         },
         "timestamp": {
-          ".validate": "newData.isNumber() || newData.val() == 'serverTimestamp'"
+          ".validate": "newData.isNumber()"
         },
         "filtered": {
           ".validate": "newData.isBoolean()"
-        }
+        },
+        "$other": { ".validate": true }
       }
     },
     "$other": {
