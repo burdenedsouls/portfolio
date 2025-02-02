@@ -1,5 +1,5 @@
-import { initializeApp } from 'firebase/app';
-import { getDatabase, ref, push, onChildAdded, query, limitToLast, onValue, serverTimestamp } from 'firebase/database';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+import { getDatabase, ref, push, onChildAdded, query, limitToLast, onValue, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
 import { app } from './firebase-config.js';
 
 class RetroChat {

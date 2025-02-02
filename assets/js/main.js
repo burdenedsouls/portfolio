@@ -850,8 +850,7 @@ class RetroChat {
             defaultEmoji: '👾',
             spamWindow: 10000,
             maxMessagesInWindow: 5,
-            mobileBreakpoint: 768,
-            wsUrl: `ws://${window.location.hostname}:3000`
+            mobileBreakpoint: 768
         };
 
         // Initialize elements
@@ -882,22 +881,63 @@ class RetroChat {
 
     async initializeChat() {
         try {
-            // Initialize RetroChat instance
-            console.log('Initializing RetroChat...');
-            this.chat = new RetroChat();
+            // Set initial state
+            this.state.isMinimized = true;
+            this.elements.window.style.display = 'none';
+            this.elements.window.classList.remove('visible');
+            this.elements.taskbarButton.classList.remove('active');
+
+            // Initialize mobile if needed
+            if (this.state.isMobile) {
+                await this.initializeMobile();
+            }
+
+            // Set up event listeners
+            this.setupEventListeners();
             
-            // Add event listeners for chat UI
-            this.setupChatEventListeners();
+            // Add default messages
+            this.addDefaultMessages();
             
             console.log('Chat initialization complete');
         } catch (error) {
-            console.error('Chat initialization failed:', error);
+            console.error('Error during chat initialization:', error);
+            throw error;
         }
     }
 
-    setupChatEventListeners() {
-        // Add any additional chat UI event listeners here
-        // The core chat functionality is now handled by RetroChat class
+    setupEventListeners() {
+        // Message sending
+        const sendMessage = () => {
+            const text = this.elements.input.value.trim();
+            const emoji = this.elements.emojiPicker.value || this.config.defaultEmoji;
+            
+            if (text) {
+                this.sendMessage(text, emoji);
+                this.elements.input.value = '';
+                if (this.state.isMobile) {
+                    this.elements.input.blur();
+                }
+            }
+        };
+
+        // Input events
+        this.elements.input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Send button
+        this.elements.sendButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            sendMessage();
+        });
+
+        // Window toggle
+        this.elements.taskbarButton.addEventListener('click', () => {
+            this.toggleWindow();
+        });
     }
 
     addDefaultMessages() {
@@ -907,7 +947,7 @@ class RetroChat {
         ];
         
         defaultMessages.forEach(message => {
-            this.chat.renderMessage({
+            this.renderMessage({
                 ...message,
                 id: `default-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
             });
@@ -927,6 +967,6 @@ class RetroChat {
 
 // Initialize chat when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('Initializing RetroChat...');
+    console.log('DOM loaded, creating RetroChat instance');
     window.retroChat = new RetroChat();
 }); 
