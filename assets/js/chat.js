@@ -2,7 +2,7 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getDatabase, ref, push, onChildAdded, query, limitToLast, onValue, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
 import { app } from './firebase-config.js';
 
-class RetroChat {
+export class RetroChat {
     constructor() {
         // Use the existing Firebase app instance
         this.database = getDatabase(app);
@@ -253,7 +253,53 @@ class RetroChat {
         }
     }
 
-    // ... rest of your existing methods (toggleWindow, minimizeWindow, etc.)
-}
+    toggleWindow() {
+        if (this.state.isMinimized) {
+            // Opening
+            this.state.isMinimized = false;
+            this.elements.window.style.display = 'flex';
+            this.elements.window.style.transform = 'translateY(100%)';
+            
+            // Force reflow
+            void this.elements.window.offsetWidth;
+            
+            // Add visible class
+            this.elements.window.classList.add('visible');
+            this.elements.taskbarButton.classList.add('active');
+            
+            // Reset any lingering transforms
+            setTimeout(() => {
+                this.elements.window.style.transform = '';
+            }, 50);
+            
+            // Scroll to bottom
+            if (this.elements.messages) {
+                this.elements.messages.scrollTop = this.elements.messages.scrollHeight;
+            }
+        } else {
+            this.minimizeWindow();
+        }
+    }
 
-export default RetroChat; 
+    minimizeWindow() {
+        // Add closing class first
+        this.elements.window.classList.add('closing');
+        this.elements.window.classList.remove('visible');
+        this.elements.taskbarButton.classList.remove('active');
+        
+        // Wait for animation to complete
+        const handleTransitionEnd = () => {
+            // Only proceed if the closing class is still present (animation wasn't interrupted)
+            if (this.elements.window.classList.contains('closing')) {
+                this.state.isMinimized = true;
+                this.elements.window.style.display = 'none';
+                this.elements.window.classList.remove('closing');
+                this.elements.window.style.transform = '';
+            }
+        };
+        
+        this.elements.window.addEventListener('transitionend', handleTransitionEnd, { once: true });
+    }
+
+    // ... rest of your existing methods (toggleWindow, minimizeWindow, etc.)
+} 
