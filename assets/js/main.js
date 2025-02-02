@@ -807,8 +807,6 @@ class LoadingSystem {
     async preloadAssets() {
         // Add your assets to preload here
         const assetsToPreload = [
-            // Images
-            '/assets/images/background.jpg',
             // Fonts
             'https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap',
             // Add more assets as needed
@@ -816,21 +814,35 @@ class LoadingSystem {
 
         const preloadPromises = assetsToPreload.map(asset => {
             if (asset.endsWith('.jpg') || asset.endsWith('.png')) {
-                return this.preloadImage(asset);
+                return this.preloadImage(asset).catch(error => {
+                    console.warn(`Failed to preload image ${asset}:`, error);
+                    return Promise.resolve(); // Continue loading other assets
+                });
             } else if (asset.includes('fonts.googleapis.com')) {
-                return this.preloadFont(asset);
+                return this.preloadFont(asset).catch(error => {
+                    console.warn(`Failed to preload font ${asset}:`, error);
+                    return Promise.resolve(); // Continue loading other assets
+                });
             }
             return Promise.resolve();
         });
 
-        await Promise.all(preloadPromises);
+        try {
+            await Promise.all(preloadPromises);
+        } catch (error) {
+            console.warn('Some assets failed to preload:', error);
+            // Continue with initialization even if some assets fail
+        }
     }
 
     preloadImage(src) {
         return new Promise((resolve, reject) => {
             const img = new Image();
             img.onload = resolve;
-            img.onerror = reject;
+            img.onerror = (error) => {
+                console.warn(`Failed to load image ${src}:`, error);
+                reject(error);
+            };
             img.src = src;
         });
     }
