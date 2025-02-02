@@ -783,43 +783,41 @@ class Navigation {
 // Loading System
 class LoadingSystem {
     constructor() {
+        // Remove loading-complete class if it exists
+        document.body.classList.remove('loading-complete');
+        
         this.loadingScreen = document.querySelector('.loading-screen');
         this.preloadContainer = document.querySelector('.preload-container');
         this.statusElement = document.querySelector('.cyber-loader__status');
         this.percentageElement = document.querySelector('.cyber-loader__percentage');
         this.barFillElement = document.querySelector('.cyber-loader__bar-fill');
         this.isLoading = true;
-        this.init();
-    }
-
-    init() {
-        // Force loading screen to be visible initially
-        document.body.classList.remove('loading-complete');
         
+        // Force loading screen to be visible
         if (this.loadingScreen) {
             this.loadingScreen.style.removeProperty('display');
             this.loadingScreen.style.opacity = '1';
             this.loadingScreen.style.visibility = 'visible';
         }
+        
+        // Start loading sequence
+        this.init();
+    }
 
+    init() {
         // Start preloading assets
         this.preloadAssets().then(() => {
-            // Once assets are loaded, start the loading sequence
             this.startLoadingSequence();
         }).catch(error => {
             console.warn('Error during preload:', error);
-            // Continue with loading sequence even if preload fails
             this.startLoadingSequence();
         });
     }
 
     async preloadAssets() {
-        // Add your assets to preload here
         const assetsToPreload = [
-            // Fonts
             'https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap',
-            'https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap',
-            // Add more assets as needed
+            'https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap'
         ];
 
         const preloadPromises = assetsToPreload.map(asset => {
@@ -869,7 +867,7 @@ class LoadingSystem {
         ];
 
         let currentStep = 0;
-        const stepInterval = 800; // 800ms between steps
+        const stepInterval = 800;
 
         const updateStep = () => {
             if (!this.isLoading || currentStep >= loadingSteps.length) {
@@ -884,7 +882,6 @@ class LoadingSystem {
             setTimeout(updateStep, stepInterval);
         };
 
-        // Start the sequence
         updateStep();
     }
 
@@ -909,7 +906,11 @@ class LoadingSystem {
         // Add loading-complete class to body
         document.body.classList.add('loading-complete');
 
-        // Wait for transitions to complete
+        // Initialize RetroChat after loading completes
+        console.log('Initializing RetroChat...');
+        window.retroChat = new RetroChat();
+
+        // Wait for transitions to complete before hiding
         setTimeout(() => {
             if (this.loadingScreen) {
                 this.loadingScreen.style.display = 'none';
@@ -917,10 +918,6 @@ class LoadingSystem {
             if (this.preloadContainer) {
                 this.preloadContainer.style.display = 'none';
             }
-
-            // Initialize RetroChat after loading completes
-            console.log('Initializing RetroChat...');
-            window.retroChat = new RetroChat();
-        }, 1000); // Wait for 1s to ensure transitions complete
+        }, 1000);
     }
 } 
