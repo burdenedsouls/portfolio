@@ -154,6 +154,21 @@
                 background: rgba(255, 255, 255, 0.2);
                 transform: scale(1.1);
             }
+
+            .main-window {
+                width: 95% !important;
+                min-height: 300px !important;
+            }
+
+            .glitch-text {
+                font-size: 1.8rem !important;
+                padding: 0 1rem !important;
+            }
+
+            .system-button {
+                padding: 0.8rem 1.6rem !important;
+                font-size: 1rem !important;
+            }
         }
 
         /* Desktop styles */
@@ -245,6 +260,223 @@
         .orb-navigation {
             z-index: 200 !important;
             position: relative !important;
+        }
+
+        /* Base structure fixes */
+        html, body {
+            width: 100% !important;
+            height: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden !important;
+            position: relative !important;
+            background: #000000 !important;
+        }
+
+        /* Main container and section structure */
+        .main-container {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            overflow: hidden !important;
+            z-index: 1 !important;
+            background: radial-gradient(circle at center,
+                rgba(26, 17, 71, 0.95) 0%,
+                rgba(13, 8, 41, 0.98) 50%,
+                rgba(0, 0, 0, 1) 100%
+            ) !important;
+        }
+
+        .section {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            transition: opacity 0.3s ease !important;
+        }
+
+        .section.active {
+            opacity: 1 !important;
+            pointer-events: all !important;
+        }
+
+        /* Window styles */
+        .window {
+            position: relative !important;
+            width: 90% !important;
+            max-width: 800px !important;
+            min-height: 400px !important;
+            background: rgba(26, 17, 71, 0.95) !important;
+            border: 1px solid rgba(138, 99, 255, 0.5) !important;
+            box-shadow: 
+                0 0 30px rgba(138, 99, 255, 0.2),
+                inset 0 0 50px rgba(138, 99, 255, 0.1) !important;
+            display: flex !important;
+            flex-direction: column !important;
+            overflow: hidden !important;
+            margin: 2rem auto !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
+            border-radius: 8px !important;
+        }
+
+        .window-header {
+            background: linear-gradient(to right,
+                rgba(138, 99, 255, 0.8),
+                rgba(76, 43, 150, 0.8)
+            ) !important;
+            border-bottom: 1px solid rgba(138, 99, 255, 0.3) !important;
+            padding: 0.5rem 1rem !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            height: 32px !important;
+        }
+
+        .window-title {
+            color: #FFFFFF !important;
+            font-family: 'Share Tech Mono', monospace !important;
+            font-size: 1rem !important;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5) !important;
+        }
+
+        .window-controls {
+            display: flex !important;
+            gap: 0.5rem !important;
+        }
+
+        .window-button {
+            width: 12px !important;
+            height: 12px !important;
+            border-radius: 50% !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            background: rgba(255, 255, 255, 0.2) !important;
+            cursor: pointer !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .window-button:hover {
+            background: rgba(255, 255, 255, 0.4) !important;
+        }
+
+        .window-content {
+            padding: 2rem !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            flex: 1 !important;
+            background: linear-gradient(135deg, 
+                rgba(26, 17, 71, 0.98) 0%,
+                rgba(13, 8, 41, 0.98) 50%,
+                rgba(26, 17, 71, 0.98) 100%
+            ) !important;
+            position: relative !important;
+            z-index: 1 !important;
+        }
+
+        .glitch-text {
+            font-family: 'Share Tech Mono', monospace !important;
+            font-size: 2.5rem !important;
+            color: #E0DCFF !important;
+            text-align: center !important;
+            margin-bottom: 2rem !important;
+            text-shadow: 
+                0 0 10px rgba(138, 99, 255, 0.5),
+                0 0 20px rgba(138, 99, 255, 0.3),
+                0 0 30px rgba(138, 99, 255, 0.2) !important;
+            letter-spacing: 2px !important;
+            text-transform: uppercase !important;
+        }
+
+        .system-button {
+            background: linear-gradient(
+                to bottom,
+                rgba(138, 99, 255, 0.8) 0%,
+                rgba(107, 70, 193, 0.8) 48%,
+                rgba(76, 43, 150, 0.8) 50%,
+                rgba(107, 70, 193, 0.8) 52%,
+                rgba(138, 99, 255, 0.8) 100%
+            ) !important;
+            border: 1px solid rgba(138, 99, 255, 0.5) !important;
+            color: #FFFFFF !important;
+            padding: 1rem 2rem !important;
+            font-family: 'Share Tech Mono', monospace !important;
+            font-size: 1.2rem !important;
+            cursor: pointer !important;
+            transition: all 0.3s ease !important;
+            text-shadow: 0 0 10px rgba(138, 99, 255, 0.5) !important;
+            box-shadow: 
+                0 0 20px rgba(138, 99, 255, 0.3),
+                inset 0 0 10px rgba(138, 99, 255, 0.2) !important;
+            border-radius: 4px !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+            position: relative !important;
+            overflow: hidden !important;
+        }
+
+        .system-button:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 
+                0 0 30px rgba(138, 99, 255, 0.4),
+                inset 0 0 15px rgba(138, 99, 255, 0.3) !important;
+        }
+
+        .system-button::after {
+            content: '' !important;
+            position: absolute !important;
+            top: -50% !important;
+            left: -50% !important;
+            width: 200% !important;
+            height: 200% !important;
+            background: linear-gradient(
+                45deg,
+                transparent,
+                rgba(255, 255, 255, 0.1),
+                transparent
+            ) !important;
+            transform: rotate(45deg) !important;
+            animation: buttonGlow 2s linear infinite !important;
+        }
+
+        @keyframes buttonGlow {
+            0% { transform: rotate(45deg) translateX(-100%) !important; }
+            100% { transform: rotate(45deg) translateX(100%) !important; }
+        }
+
+        /* Mobile adjustments */
+        @media (max-width: 768px) {
+            .window {
+                width: 95% !important;
+                min-height: 300px !important;
+                margin: 1rem auto !important;
+            }
+
+            .window-content {
+                padding: 1.5rem !important;
+            }
+
+            .glitch-text {
+                font-size: 1.8rem !important;
+                padding: 0 1rem !important;
+            }
+
+            .system-button {
+                padding: 0.8rem 1.6rem !important;
+                font-size: 1rem !important;
+            }
         }
     </style>
 
