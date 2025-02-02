@@ -180,7 +180,16 @@ export class RetroChat {
     }
 
     async sendMessage(text, emoji) {
-        if (!text.trim() || !this.state.connected) return;
+        if (!text.trim()) {
+            console.warn('Cannot send empty message');
+            return;
+        }
+        
+        if (!this.state.connected) {
+            console.warn('Cannot send message while disconnected');
+            this.updateStatus('Cannot send message: Disconnected');
+            return;
+        }
 
         // Filter profanity before sending
         const filteredText = this.filterProfanity(text);
@@ -189,21 +198,25 @@ export class RetroChat {
             id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
             text: filteredText.slice(0, this.config.maxLength),
             emoji: emoji || this.config.defaultEmoji,
-            timestamp: Date.now(), // Use numeric timestamp instead of serverTimestamp
+            timestamp: Date.now(),
             filtered: filteredText !== text
         };
 
         try {
+            console.log('Sending message:', message);
             await push(this.messagesRef, message);
+            console.log('Message sent successfully');
             this.elements.input.value = '';
             if (this.state.isMobile) {
                 this.elements.input.blur();
             }
         } catch (error) {
             console.error('Error sending message:', error);
-            this.updateStatus('Error sending message: ' + error.message);
-            throw error; // Re-throw to allow handling by caller
+            this.updateStatus(`Error: ${error.message}`);
+            // Don't throw here, handle gracefully
+            return false;
         }
+        return true;
     }
 
     renderMessage(message) {
