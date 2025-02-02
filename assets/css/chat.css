@@ -1,0 +1,20 @@
+.chat-status {
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin: 4px;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.chat-status.connected {
+    background-color: rgba(0, 255, 0, 0.1);
+    color: #00ff00;
+    border: 1px solid #00ff00;
+}
+
+.chat-status.disconnected {
+    background-color: rgba(255, 0, 0, 0.1);
+    color: #ff0000;
+    border: 1px solid #ff0000;
+} 

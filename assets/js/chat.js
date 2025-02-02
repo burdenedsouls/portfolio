@@ -1,13 +1,13 @@
 import { initializeApp } from 'firebase/app';
-import { getDatabase, ref, push, onChildAdded, query, limitToLast } from 'firebase/database';
+import { getDatabase, ref, push, onChildAdded, query, limitToLast, onValue, serverTimestamp } from 'firebase/database';
 import { app } from './firebase-config.js';
 
 class RetroChat {
     constructor() {
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
+        // Use the existing Firebase app instance
         this.database = getDatabase(app);
         this.messagesRef = ref(this.database, 'messages');
+        this.statusRef = ref(this.database, '.info/connected');
 
         // Core state
         this.state = {
@@ -23,7 +23,7 @@ class RetroChat {
         // Configuration
         this.config = {
             maxMessages: 50,
-            maxLength: 25,
+            maxLength: 250,
             minInterval: 1000,
             maxRepeatedChars: 3,
             defaultEmoji: '👾'
@@ -54,6 +54,7 @@ class RetroChat {
         this.initializeChat()
             .then(() => {
                 console.log('Chat initialized successfully');
+                this.setupConnectionMonitor();
                 this.setupMessageListener();
             })
             .catch(error => console.error('Chat initialization failed:', error));
@@ -170,8 +171,16 @@ class RetroChat {
         });
     }
 
+    setupConnectionMonitor() {
+        onValue(this.statusRef, (snapshot) => {
+            this.state.connected = snapshot.val();
+            this.updateStatus(this.state.connected ? 'Connected' : 'Disconnected');
+            console.log('Connection status:', this.state.connected);
+        });
+    }
+
     async sendMessage(text, emoji) {
-        if (!text.trim()) return;
+        if (!text.trim() || !this.state.connected) return;
 
         // Filter profanity before sending
         const filteredText = this.filterProfanity(text);
@@ -180,8 +189,8 @@ class RetroChat {
             id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
             text: filteredText.slice(0, this.config.maxLength),
             emoji: emoji || this.config.defaultEmoji,
-            timestamp: Date.now(),
-            filtered: filteredText !== text // Flag if message was filtered
+            timestamp: serverTimestamp(),
+            filtered: filteredText !== text
         };
 
         try {
@@ -239,6 +248,8 @@ class RetroChat {
     updateStatus(status) {
         if (this.elements.status) {
             this.elements.status.textContent = status;
+            this.elements.status.className = 'chat-status ' + 
+                (status === 'Connected' ? 'connected' : 'disconnected');
         }
     }
 
