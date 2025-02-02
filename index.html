@@ -623,23 +623,31 @@
 <body>
     <!-- Loading Screen -->
     <div class="loading-screen">
-        <div class="window loading-window">
-            <div class="window-header">
-                <div class="window-title">SYSTEM STARTUP</div>
-                <div class="window-controls">
-                    <button class="window-button minimize"></button>
-                    <button class="window-button maximize"></button>
-                    <button class="window-button close"></button>
-                </div>
+        <div class="cyber-loader">
+            <div class="cyber-loader__scan"></div>
+            <div class="cyber-loader__lines">
+                <div class="cyber-loader__line"></div>
+                <div class="cyber-loader__line"></div>
+                <div class="cyber-loader__line"></div>
+                <div class="cyber-loader__line"></div>
+                <div class="cyber-loader__line"></div>
             </div>
-            <div class="window-content">
-                <div class="loading-text">INITIALIZING SYSTEM</div>
-                <div class="loading-progress-container">
-                    <div class="loading-progress"></div>
+            <div class="cyber-loader__glitch"></div>
+            <div class="cyber-loader__text">
+                <div class="cyber-loader__status">SYSTEM BOOT</div>
+                <div class="cyber-loader__progress">
+                    <span class="cyber-loader__percentage">0%</span>
+                    <div class="cyber-loader__bar">
+                        <div class="cyber-loader__bar-fill"></div>
+                    </div>
                 </div>
-                <div class="loading-status">Establishing Connection...</div>
             </div>
         </div>
+    </div>
+
+    <!-- Preload Container -->
+    <div class="preload-container">
+        <div class="preload-assets"></div>
     </div>
 
     <!-- Three.js Container -->

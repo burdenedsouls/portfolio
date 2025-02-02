@@ -1,0 +1,30 @@
+{
+  "rules": {
+    "messages": {
+      ".read": true,
+      ".write": true,
+      "$message": {
+        ".validate": "newData.hasChildren(['id', 'text', 'emoji', 'timestamp'])",
+        "id": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "text": {
+          ".validate": "newData.isString() && newData.val().length <= 250"
+        },
+        "emoji": {
+          ".validate": "newData.isString() && newData.val().length <= 4"
+        },
+        "timestamp": {
+          ".validate": "newData.isNumber() || newData.val() == 'serverTimestamp'"
+        },
+        "filtered": {
+          ".validate": "newData.isBoolean()"
+        }
+      }
+    },
+    "$other": {
+      ".read": false,
+      ".write": false
+    }
+  }
+} 

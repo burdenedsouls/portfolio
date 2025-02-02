@@ -790,44 +790,114 @@ class Navigation {
 class LoadingSystem {
     constructor() {
         this.loadingScreen = document.querySelector('.loading-screen');
+        this.preloadContainer = document.querySelector('.preload-container');
+        this.statusElement = document.querySelector('.cyber-loader__status');
+        this.percentageElement = document.querySelector('.cyber-loader__percentage');
         this.init();
     }
 
     init() {
-        // Simulate loading process
-        setTimeout(() => {
-            this.updateLoadingStatus('Checking System Requirements...');
-        }, 1000);
-
-        setTimeout(() => {
-            this.updateLoadingStatus('Initializing Interface Components...');
-        }, 2000);
-
-        setTimeout(() => {
-            this.updateLoadingStatus('Loading Complete');
-        }, 3000);
-
-        setTimeout(() => {
-            this.hideLoadingScreen();
-        }, 3500);
+        // Start preloading assets
+        this.preloadAssets().then(() => {
+            // Once assets are loaded, start the loading sequence
+            this.startLoadingSequence();
+        });
     }
 
-    updateLoadingStatus(status) {
-        const statusElement = document.querySelector('.loading-status');
-        if (statusElement) {
-            statusElement.textContent = status;
+    async preloadAssets() {
+        // Add your assets to preload here
+        const assetsToPreload = [
+            // Images
+            '/assets/images/background.jpg',
+            // Fonts
+            'https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap',
+            // Add more assets as needed
+        ];
+
+        const preloadPromises = assetsToPreload.map(asset => {
+            if (asset.endsWith('.jpg') || asset.endsWith('.png')) {
+                return this.preloadImage(asset);
+            } else if (asset.includes('fonts.googleapis.com')) {
+                return this.preloadFont(asset);
+            }
+            return Promise.resolve();
+        });
+
+        await Promise.all(preloadPromises);
+    }
+
+    preloadImage(src) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = resolve;
+            img.onerror = reject;
+            img.src = src;
+        });
+    }
+
+    preloadFont(href) {
+        return new Promise((resolve, reject) => {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = href;
+            link.onload = resolve;
+            link.onerror = reject;
+            document.head.appendChild(link);
+        });
+    }
+
+    startLoadingSequence() {
+        const loadingSteps = [
+            { status: 'INITIALIZING SYSTEM', percentage: 20 },
+            { status: 'CHECKING REQUIREMENTS', percentage: 40 },
+            { status: 'LOADING ASSETS', percentage: 60 },
+            { status: 'ESTABLISHING CONNECTION', percentage: 80 },
+            { status: 'SYSTEM READY', percentage: 100 }
+        ];
+
+        let currentStep = 0;
+        const interval = setInterval(() => {
+            if (currentStep >= loadingSteps.length) {
+                clearInterval(interval);
+                this.completeLoading();
+                return;
+            }
+
+            const step = loadingSteps[currentStep];
+            this.updateLoadingStatus(step.status, step.percentage);
+            currentStep++;
+        }, 800);
+    }
+
+    updateLoadingStatus(status, percentage) {
+        if (this.statusElement) {
+            this.statusElement.textContent = status;
+        }
+        if (this.percentageElement) {
+            this.percentageElement.textContent = `${percentage}%`;
         }
     }
 
-    hideLoadingScreen() {
+    completeLoading() {
+        // Add loading-complete class to body
+        document.body.classList.add('loading-complete');
+
+        // Fade out loading screen and preload container
         if (this.loadingScreen) {
             this.loadingScreen.style.opacity = '0';
-            this.loadingScreen.style.transition = 'opacity 0.5s ease';
-            setTimeout(() => {
-                this.loadingScreen.style.display = 'none';
-                // Add loading-complete class to body to show chat button
-                document.body.classList.add('loading-complete');
-            }, 500);
         }
+        if (this.preloadContainer) {
+            this.preloadContainer.classList.add('loaded');
+        }
+
+        // Remove loading elements after animation
+        setTimeout(() => {
+            if (this.loadingScreen) {
+                this.loadingScreen.style.display = 'none';
+            }
+            if (this.preloadContainer) {
+                this.preloadContainer.style.display = 'none';
+            }
+        }, 500);
     }
 } 
