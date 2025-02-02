@@ -11,14 +11,15 @@
         /* Force dark theme immediately */
         :root {
             color-scheme: dark;
-            background: #000000;
         }
         
         html, body {
             background: #000000 !important;
             min-height: 100vh;
+            min-height: 100dvh;
             margin: 0;
             padding: 0;
+            overflow: hidden;
         }
 
         /* Make chat button always accessible but hidden initially */
@@ -50,34 +51,35 @@
             opacity: 1 !important;
         }
 
-        /* Base chat window styles */
-        .chat-window {
-            display: none;
-            position: fixed;
-            z-index: 999999;
-            background: rgba(13, 8, 41, 0.98);
-            flex-direction: column;
-        }
-
-        /* Loading Screen */
+        /* Loading Screen - Critical Styles */
         .loading-screen {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
+            width: 100vw;
             height: 100vh;
             height: 100dvh;
-            background: rgba(13, 8, 41, 0.98);
+            background: #0D0829;
             z-index: 999999;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: opacity 0.5s ease;
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+            will-change: opacity, visibility;
+            pointer-events: auto;
+        }
+
+        .loading-complete .loading-screen {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
         }
 
         .cyber-loader {
-            width: 280px;
-            height: 280px;
+            width: min(280px, 90%);
+            height: min(280px, 90vw);
             background: rgba(26, 17, 71, 0.95);
             border: 2px solid rgba(138, 99, 255, 0.5);
             box-shadow: 0 0 50px rgba(138, 99, 255, 0.2);
@@ -87,6 +89,15 @@
             align-items: center;
             position: relative;
             overflow: hidden;
+            opacity: 1;
+            transform: scale(1);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            border-radius: 8px;
+        }
+
+        .loading-complete .cyber-loader {
+            opacity: 0;
+            transform: scale(0.95);
         }
 
         .cyber-loader__scan {
@@ -156,12 +167,15 @@
                 transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 background: rgba(13, 8, 41, 0.98) !important;
                 border: none !important;
+                display: flex !important;
+                opacity: 0;
+                pointer-events: none;
             }
 
             .chat-window.visible {
-                display: flex !important;
                 transform: translateY(0) !important;
                 opacity: 1 !important;
+                pointer-events: auto !important;
             }
 
             /* Make chat button more visible on mobile */
@@ -176,6 +190,7 @@
                 background: rgba(138, 99, 255, 0.8) !important;
                 box-shadow: 0 4px 12px rgba(138, 99, 255, 0.3) !important;
                 z-index: 999999 !important;
+                border-radius: 50% !important;
             }
 
             .taskbar-chat-toggle .taskbar-icon {

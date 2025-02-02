@@ -745,12 +745,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize navigation after loading
     const navigation = new Navigation();
     
-    // Initialize RetroChat after a short delay to ensure all elements are loaded
-    setTimeout(() => {
-        console.log('Initializing RetroChat...');
-        window.retroChat = new RetroChat();
-    }, 500);
-    
     // Handle system entry button
     const systemButton = document.querySelector('.system-button');
     if (systemButton) {
@@ -793,13 +787,28 @@ class LoadingSystem {
         this.preloadContainer = document.querySelector('.preload-container');
         this.statusElement = document.querySelector('.cyber-loader__status');
         this.percentageElement = document.querySelector('.cyber-loader__percentage');
+        this.barFillElement = document.querySelector('.cyber-loader__bar-fill');
+        this.isLoading = true;
         this.init();
     }
 
     init() {
+        // Force loading screen to be visible initially
+        document.body.classList.remove('loading-complete');
+        
+        if (this.loadingScreen) {
+            this.loadingScreen.style.removeProperty('display');
+            this.loadingScreen.style.opacity = '1';
+            this.loadingScreen.style.visibility = 'visible';
+        }
+
         // Start preloading assets
         this.preloadAssets().then(() => {
             // Once assets are loaded, start the loading sequence
+            this.startLoadingSequence();
+        }).catch(error => {
+            console.warn('Error during preload:', error);
+            // Continue with loading sequence even if preload fails
             this.startLoadingSequence();
         });
     }
@@ -809,40 +818,30 @@ class LoadingSystem {
         const assetsToPreload = [
             // Fonts
             'https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap',
+            'https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap',
             // Add more assets as needed
         ];
 
         const preloadPromises = assetsToPreload.map(asset => {
             if (asset.endsWith('.jpg') || asset.endsWith('.png')) {
-                return this.preloadImage(asset).catch(error => {
-                    console.warn(`Failed to preload image ${asset}:`, error);
-                    return Promise.resolve(); // Continue loading other assets
-                });
+                return this.preloadImage(asset);
             } else if (asset.includes('fonts.googleapis.com')) {
-                return this.preloadFont(asset).catch(error => {
-                    console.warn(`Failed to preload font ${asset}:`, error);
-                    return Promise.resolve(); // Continue loading other assets
-                });
+                return this.preloadFont(asset);
             }
             return Promise.resolve();
         });
 
-        try {
-            await Promise.all(preloadPromises);
-        } catch (error) {
+        return Promise.all(preloadPromises).catch(error => {
             console.warn('Some assets failed to preload:', error);
-            // Continue with initialization even if some assets fail
-        }
+            return Promise.resolve();
+        });
     }
 
     preloadImage(src) {
         return new Promise((resolve, reject) => {
             const img = new Image();
             img.onload = resolve;
-            img.onerror = (error) => {
-                console.warn(`Failed to load image ${src}:`, error);
-                reject(error);
-            };
+            img.onerror = reject;
             img.src = src;
         });
     }
@@ -859,6 +858,8 @@ class LoadingSystem {
     }
 
     startLoadingSequence() {
+        if (!this.isLoading) return;
+
         const loadingSteps = [
             { status: 'INITIALIZING SYSTEM', percentage: 20 },
             { status: 'CHECKING REQUIREMENTS', percentage: 40 },
@@ -868,9 +869,10 @@ class LoadingSystem {
         ];
 
         let currentStep = 0;
-        const interval = setInterval(() => {
-            if (currentStep >= loadingSteps.length) {
-                clearInterval(interval);
+        const stepInterval = 800; // 800ms between steps
+
+        const updateStep = () => {
+            if (!this.isLoading || currentStep >= loadingSteps.length) {
                 this.completeLoading();
                 return;
             }
@@ -878,31 +880,36 @@ class LoadingSystem {
             const step = loadingSteps[currentStep];
             this.updateLoadingStatus(step.status, step.percentage);
             currentStep++;
-        }, 800);
+
+            setTimeout(updateStep, stepInterval);
+        };
+
+        // Start the sequence
+        updateStep();
     }
 
     updateLoadingStatus(status, percentage) {
+        if (!this.isLoading) return;
+
         if (this.statusElement) {
             this.statusElement.textContent = status;
         }
         if (this.percentageElement) {
             this.percentageElement.textContent = `${percentage}%`;
         }
+        if (this.barFillElement) {
+            this.barFillElement.style.width = `${percentage}%`;
+        }
     }
 
     completeLoading() {
+        if (!this.isLoading) return;
+        this.isLoading = false;
+
         // Add loading-complete class to body
         document.body.classList.add('loading-complete');
 
-        // Fade out loading screen and preload container
-        if (this.loadingScreen) {
-            this.loadingScreen.style.opacity = '0';
-        }
-        if (this.preloadContainer) {
-            this.preloadContainer.classList.add('loaded');
-        }
-
-        // Remove loading elements after animation
+        // Wait for transitions to complete
         setTimeout(() => {
             if (this.loadingScreen) {
                 this.loadingScreen.style.display = 'none';
@@ -910,6 +917,10 @@ class LoadingSystem {
             if (this.preloadContainer) {
                 this.preloadContainer.style.display = 'none';
             }
-        }, 500);
+
+            // Initialize RetroChat after loading completes
+            console.log('Initializing RetroChat...');
+            window.retroChat = new RetroChat();
+        }, 1000); // Wait for 1s to ensure transitions complete
     }
 } 
