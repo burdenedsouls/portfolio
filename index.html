@@ -55,8 +55,91 @@
             display: none;
             position: fixed;
             z-index: 999999;
-            background: rgba(0, 0, 0, 0.95);
+            background: rgba(13, 8, 41, 0.98);
             flex-direction: column;
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            height: 100dvh;
+            background: rgba(13, 8, 41, 0.98);
+            z-index: 999999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease;
+        }
+
+        .cyber-loader {
+            width: 280px;
+            height: 280px;
+            background: rgba(26, 17, 71, 0.95);
+            border: 2px solid rgba(138, 99, 255, 0.5);
+            box-shadow: 0 0 50px rgba(138, 99, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cyber-loader__scan {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: rgba(138, 99, 255, 0.8);
+            animation: scan 2s linear infinite;
+            box-shadow: 0 0 20px rgba(138, 99, 255, 0.5);
+        }
+
+        .cyber-loader__text {
+            color: #E0DCFF;
+            font-family: 'Share Tech Mono', monospace;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(138, 99, 255, 0.5);
+            z-index: 1;
+            padding: 20px;
+        }
+
+        .cyber-loader__status {
+            font-size: 20px;
+            margin-bottom: 15px;
+            animation: glitch 1s linear infinite;
+        }
+
+        .cyber-loader__percentage {
+            display: block;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: rgba(138, 99, 255, 0.8);
+        }
+
+        .cyber-loader__bar {
+            width: 200px;
+            height: 4px;
+            background: rgba(138, 99, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+            border-radius: 2px;
+        }
+
+        .cyber-loader__bar-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: rgba(138, 99, 255, 0.8);
+            box-shadow: 0 0 10px rgba(138, 99, 255, 0.5);
+            transition: width 0.3s ease;
         }
 
         /* Mobile styles */
@@ -66,22 +149,51 @@
                 left: 0;
                 right: 0;
                 bottom: 0;
-                width: 100%;
-                height: 100vh;
-                height: 100dvh; /* Dynamic viewport height for mobile */
+                width: 100% !important;
+                height: 100vh !important;
+                height: 100dvh !important;
                 transform: translateY(100%);
                 transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 background: rgba(13, 8, 41, 0.98) !important;
-                display: flex;
-                flex-direction: column;
+                border: none !important;
             }
 
             .chat-window.visible {
-                transform: translateY(0);
+                display: flex !important;
+                transform: translateY(0) !important;
+                opacity: 1 !important;
             }
 
-            .chat-window.closing {
-                transform: translateY(100%);
+            /* Make chat button more visible on mobile */
+            .taskbar-chat-toggle {
+                display: flex !important;
+                opacity: 1 !important;
+                position: fixed !important;
+                right: 20px !important;
+                bottom: max(20px, env(safe-area-inset-bottom)) !important;
+                width: 50px !important;
+                height: 50px !important;
+                background: rgba(138, 99, 255, 0.8) !important;
+                box-shadow: 0 4px 12px rgba(138, 99, 255, 0.3) !important;
+                z-index: 999999 !important;
+            }
+
+            .taskbar-chat-toggle .taskbar-icon {
+                font-size: 24px !important;
+            }
+
+            /* Ensure chat messages are visible */
+            .chat-messages {
+                background: rgba(13, 8, 41, 0.95) !important;
+            }
+
+            /* Adjust cyber loader size for mobile */
+            .cyber-loader {
+                width: 85%;
+                max-width: 280px;
+                height: auto;
+                aspect-ratio: 1;
+                border-radius: 8px;
             }
 
             /* Chat messages container */

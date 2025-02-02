@@ -3844,27 +3844,108 @@ body {
 
 /* Animations */
 @keyframes scan {
-    0% { transform: translateY(0); }
-    50% { transform: translateY(296px); }
-    100% { transform: translateY(0); }
+    0% { transform: translateY(0); opacity: 1; }
+    50% { transform: translateY(calc(100% - 4px)); opacity: 0.5; }
+    100% { transform: translateY(0); opacity: 1; }
 }
 
 @keyframes pulse {
     0%, 100% { transform: scaleX(1); opacity: 0.2; }
-    50% { transform: scaleX(1.2); opacity: 0.5; }
-}
-
-@keyframes fill {
-    0% { width: 0; }
-    100% { width: 100%; }
+    50% { transform: scaleX(1.2); opacity: 0.8; }
 }
 
 @keyframes glitch {
-    0%, 100% { transform: translate(0); }
-    20% { transform: translate(-2px, 2px); }
-    40% { transform: translate(2px, -2px); }
-    60% { transform: translate(-2px, -2px); }
-    80% { transform: translate(2px, 2px); }
+    0%, 100% { transform: translate(0); text-shadow: 0 0 10px rgba(138, 99, 255, 0.5); }
+    20% { transform: translate(-2px, 2px); text-shadow: 2px 0 10px rgba(138, 99, 255, 0.8); }
+    40% { transform: translate(2px, -2px); text-shadow: -2px 0 10px rgba(138, 99, 255, 0.7); }
+    60% { transform: translate(-2px, -2px); text-shadow: 0 2px 10px rgba(138, 99, 255, 0.6); }
+    80% { transform: translate(2px, 2px); text-shadow: 0 -2px 10px rgba(138, 99, 255, 0.5); }
+}
+
+/* Loading Lines Animation */
+.cyber-loader__lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    padding: 20px;
+    opacity: 0.5;
+}
+
+.cyber-loader__line {
+    height: 2px;
+    background: rgba(138, 99, 255, 0.3);
+    animation: pulse 1.5s ease-in-out infinite;
+    box-shadow: 0 0 10px rgba(138, 99, 255, 0.5);
+}
+
+.cyber-loader__line:nth-child(1) { animation-delay: 0s; }
+.cyber-loader__line:nth-child(2) { animation-delay: 0.2s; }
+.cyber-loader__line:nth-child(3) { animation-delay: 0.4s; }
+.cyber-loader__line:nth-child(4) { animation-delay: 0.6s; }
+.cyber-loader__line:nth-child(5) { animation-delay: 0.8s; }
+
+/* Glitch Effect */
+.cyber-loader__glitch {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+        90deg,
+        rgba(138, 99, 255, 0.05) 0px,
+        rgba(138, 99, 255, 0.05) 1px,
+        transparent 1px,
+        transparent 2px
+    );
+    mix-blend-mode: overlay;
+    pointer-events: none;
+    animation: glitchBg 1s steps(2) infinite;
+}
+
+@keyframes glitchBg {
+    0%, 100% { opacity: 0.1; }
+    50% { opacity: 0.2; }
+}
+
+/* Progress Bar Animation */
+@keyframes fillProgress {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+.cyber-loader__bar-fill {
+    animation: fillProgress 3s ease-out forwards;
+}
+
+/* Status Text Animation */
+.cyber-loader__status {
+    position: relative;
+}
+
+.cyber-loader__status::before,
+.cyber-loader__status::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 2px;
+    height: 100%;
+    background: rgba(138, 99, 255, 0.5);
+}
+
+.cyber-loader__status::before {
+    left: -10px;
+    animation: pulse 1s ease-in-out infinite;
+}
+
+.cyber-loader__status::after {
+    right: -10px;
+    animation: pulse 1s ease-in-out infinite 0.5s;
 }
 
 /* Hide loader when content is ready */
